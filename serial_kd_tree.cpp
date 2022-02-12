@@ -19,21 +19,20 @@ struct Node
 };
 
 
-Node *kd_tree( Node* root, std::vector<std::vector<double>> vect, bool myaxis, int* compt){
+Node *kd_tree( std::vector<std::vector<double>> vect, bool myaxis, int* compt){
 	
+	
+		struct Node *newnode = new Node;
 	if (vect.size()==1){
 
-		root-> point[0] = vect[0][0];
-		root->point[1] =vect[0][1];
-		root->right = root->left=NULL;
+		newnode-> point[0] = vect[0][0];
+		newnode->point[1] =vect[0][1];
+		newnode->right = newnode->left=NULL;
 		*compt = *compt+1;
-		return root;
+		return newnode;
 	}
 	else{ 
-
-		struct Node *leftNode = new Node;
-		struct Node *rightNode = new Node; 
-
+ 
 
 			// let's find the median,
 		int m=vect.size(); //number of row 
@@ -57,8 +56,8 @@ Node *kd_tree( Node* root, std::vector<std::vector<double>> vect, bool myaxis, i
 			sort(vect.begin(),vect.end());
 			}
 
-		root->point[0]=vect[l][0];
-		root->point[1] = vect[l][1];
+		newnode->point[0]=vect[l][0];
+		newnode->point[1] = vect[l][1];
 
 		vector<vector<double>> left;
 		vector<vector<double>> right; 
@@ -69,12 +68,12 @@ Node *kd_tree( Node* root, std::vector<std::vector<double>> vect, bool myaxis, i
 		for(int i=l+1; i<m;i++)
 			right.push_back(vect[i]);
 
-		root->left = kd_tree(leftNode,left,!myaxis, compt);
+		newnode->left = kd_tree(left,!myaxis, compt);
 
 		if(right.size()>0) // this condition is use to avoid dumped core because, for 2 data, right=empty
-			root->right= kd_tree(rightNode,right,!myaxis, compt);
+			newnode->right= kd_tree(right,!myaxis, compt);
 		
-		return root;
+		return newnode;
 		
 	}
 
@@ -103,7 +102,7 @@ int main(){
 
 	bool myaxis=false;
 
-	root = kd_tree(root,vect,myaxis, &compt);
+	root = kd_tree(vect,myaxis, &compt);
 	cout<< " Number of leaves  " << compt<<endl;
 	cout<< " Done .."<<endl;	
 	return 0;
