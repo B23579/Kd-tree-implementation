@@ -21,7 +21,7 @@ struct Node
 
 
 Node *kd_tree( std::vector<std::vector<double>> vect, bool myaxis, int* compt){
-	
+		
 	
 		struct Node *newnode = new Node;
 	if (vect.size()==1){
@@ -33,24 +33,34 @@ Node *kd_tree( std::vector<std::vector<double>> vect, bool myaxis, int* compt){
 		return newnode;
 	}
 	else{ 
- 
-
-			// let's find the median,
+ 			// let's find the median,
 		int m=vect.size(); //number of row 
 		int l= m/2;
+
+	
 
 		//1. sort vect according to axis  myaxis 
 		
 		if(myaxis==true){ // we sort according to y axis
+		#pragma omp parallel shared(vect,l,m)
+		{
 			// 1. Let's swap the vector 
-				for(int i=0; i<m; i++)
-					swap(vect[i][0],vect[i][1]);
+				#pragma omp for ordered					
+					for(int i=0; i<m; i++){
+						#pragma omp odered 
+						swap(vect[i][0],vect[i][1]);}
+				
 			// 2. sort the swap vector 
 
 			sort(vect.begin(),vect.end());
-			// 3. swap again the vector 
-				for(int i=0; i<m; i++)
-					swap(vect[i][0],vect[i][1]);
+			// 3. swap again the vector
+				#pragma omp for ordered 
+				 
+				for(int i=0; i<m; i++){
+					#pragma omp ordered 
+					swap(vect[i][0],vect[i][1]);}
+				
+		} // close pragma 
 		}
 		else{ // we sort according to x axis
 			
@@ -62,18 +72,33 @@ Node *kd_tree( std::vector<std::vector<double>> vect, bool myaxis, int* compt){
 
 		vector<vector<double>> left;
 		vector<vector<double>> right; 
-
-
-		for (int  i=0; i<l; i++)
-			left.push_back(vect[i]);
+		
+//		#pragma omp parellel shared (vect,l,m) 
+//		{
+//		#pragma omp task
+		{for (int  i=0; i<l; i++)
+			left.push_back(vect[i]);}
+//		#pragma omp task 
+//		{
 		for(int i=l+1; i<m;i++)
 			right.push_back(vect[i]);
-
-		newnode->left = kd_tree(left,!myaxis, compt);
-
+//		}
+//		}
+//		std:: cout<< " out " <<std::endl;
+		#pragma omp parallel
+		{	
+			#pragma omp single nowait
+			{
+			#pragma  omp task
+				newnode->left = kd_tree(left,!myaxis, compt);
+		#pragma omp task
+		{
 		if(right.size()>0) // this condition is use to avoid dumped core because, for 2 data, right=empty
 			newnode->right= kd_tree(right,!myaxis, compt);
-		
+		}
+			
+		}
+		}
 		return newnode;
 		
 	}
