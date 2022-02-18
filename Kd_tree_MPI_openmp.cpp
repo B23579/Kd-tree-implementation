@@ -48,8 +48,7 @@ Node *kd_tree( std::vector<std::vector<double>> vect, bool myaxis, int* compt){
 				#pragma omp for ordered					
 					for(int i=0; i<m; i++){
 						#pragma omp odered 
-						swap(vect[i][0],vect[i][1]);}
-				
+						swap(vect[i][0],vect[i][1]);}				
 			// 2. sort the swap vector 
 
 			sort(vect.begin(),vect.end());
@@ -72,22 +71,27 @@ Node *kd_tree( std::vector<std::vector<double>> vect, bool myaxis, int* compt){
 
 		vector<vector<double>> left;
 		vector<vector<double>> right; 
-		
-//		#pragma omp parellel shared (vect,l,m) 
-//		{
-//		#pragma omp task
-		{for (int  i=0; i<l; i++)
-			left.push_back(vect[i]);}
-//		#pragma omp task 
-//		{
-		for(int i=l+1; i<m;i++)
-			right.push_back(vect[i]);
+
+//		#pragma omp parellel shared (vect,l,m,left,right) 
+//		{  
+//			#pragma omp single nowait
+//	{
+//			#pragma omp task
+//				{
+				for (int  i=0; i<l; i++)
+					left.push_back(vect[i]);
+//				}
+//			#pragma omp  task
+//			{
+				for(int i=l+1; i<m;i++)
+					right.push_back(vect[i]);
+//			}}	
 //		}
-//		}
-//		std:: cout<< " out " <<std::endl;
+//		std:: cout<< " out "<< left.size()<<right.size() <<std::endl;
 		#pragma omp parallel
 		{	
-			#pragma omp single nowait
+			#pragma omp single nowait // Due to nowait claude, all the threads skip the 
+			//  implied barrier at the end of single region and wait here for being assigned a task
 			{
 			#pragma  omp task
 				newnode->left = kd_tree(left,!myaxis, compt);
