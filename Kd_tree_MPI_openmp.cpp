@@ -151,9 +151,13 @@ int main(){
 	cout<< " vect size " <<vect.size()<<endl;
 
 	bool myaxis=false;
-
+	double start = omp_get_wtime(); 
 	root = kd_tree(vect,myaxis, &compt);
+	double endtime = omp_get_wtime();
+
 	cout<< " Number of leaves  " << compt<<endl;
+	cout<< " time is " << endtime - start;
+
 	cout<< " Done .."<<endl;	
 	return 0;
 	}
