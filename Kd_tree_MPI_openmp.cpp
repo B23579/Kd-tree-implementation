@@ -118,7 +118,7 @@ int main(){
 	int m;
 	int compt{0};
 
-	cin>> m;
+	for(int m =4 ; m<7;m++){
 	int n= pow(10,m);
 	
 	// we want to performe  10^m iterrations 
@@ -148,16 +148,16 @@ int main(){
 					}
 			}
 	}
-	cout<< " vect size " <<vect.size()<<endl;
+//	cout<< " vect size " <<vect.size()<<endl;
 
 	bool myaxis=false;
 	double start = omp_get_wtime(); 
 	root = kd_tree(vect,myaxis, &compt);
 	double endtime = omp_get_wtime();
 
-	cout<< " Number of leaves  " << compt<<endl;
-	cout<< " time is " << endtime - start;
-
+	//cout<< " Number of leaves  " << compt<<endl;
+	cout<< m << ";" << endtime - start<<std::endl;
+	}
 	cout<< " Done .."<<endl;	
 	return 0;
 	}
