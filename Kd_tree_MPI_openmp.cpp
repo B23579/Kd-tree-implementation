@@ -72,21 +72,17 @@ Node *kd_tree( std::vector<std::vector<double>> vect, bool myaxis, int* compt){
 		vector<vector<double>> left;
 		vector<vector<double>> right; 
 
-//		#pragma omp parellel shared (vect,l,m,left,right) 
-//		{  
-//			#pragma omp single nowait
-//	{
-//			#pragma omp task
-//				{
-				for (int  i=0; i<l; i++)
-					left.push_back(vect[i]);
-//				}
-//			#pragma omp  task
-//			{
-				for(int i=l+1; i<m;i++)
-					right.push_back(vect[i]);
-//			}}	
-//		}
+		//#pragma omp parellel shared (vect,l,m,left,right) 
+		//{  
+		
+		for (int  i=0; i<l; i++)
+			{
+			left.push_back(vect[i]);}
+		
+		for(int i=l+1; i<m;i++)
+			{
+			right.push_back(vect[i]);}	
+
 //		std:: cout<< " out "<< left.size()<<right.size() <<std::endl;
 		#pragma omp parallel
 		{	
@@ -131,7 +127,8 @@ int main(){
 	int start = start*count;
 	int stop = start + count;
 	
-	// Now let's perform the for loop 
+	// Now let's perform the for loop
+			#pragma omp for  
 			for(int i=start; i<stop; i++){
 				 	
 				srand(i);
