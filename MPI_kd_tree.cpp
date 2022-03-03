@@ -20,6 +20,7 @@ struct Node
 };
 
 
+
 Node *kd_tree( std::vector<std::vector<double>> vect, bool myaxis, int* compt){
 		
 	
@@ -111,15 +112,16 @@ int main(int argc, char **argv){
 	int rank =MPI::COMM_WORLD.Get_rank();
 	int nprc= MPI::COMM_WORLD.Get_size();
 	MPI_Status stats[nprc];
+
+	for(int m =4 ; m<7;m++){
+	int n= pow(10,m);
 	struct Node* root= new Node;
- 
 	vector<vector<double>> vect{};
-	int m;
+	
 	int compt{0};
 	double tab[2];
-	for(int m =5 ; m<6;m++){
-	int n= pow(10,m);
 	
+	double starttime{0}, endtime{0};
 	// we want to performe  10^m iterrations 
 	
 //	#pragma omp parallel shared(vect,n)
@@ -129,12 +131,11 @@ int main(int argc, char **argv){
 	int count= n/nprc;
 	int start = rank*count;
 	int stop = start + count;
-	
+	bool myaxis=true;	
 	if(rank==0){
 	// Now let's perform the for loop
 //			#pragma omp for  
-			for(int i=0; i<n; i++){
-				 	
+			for(int i=0; i<n; i++){				 	
 				srand(i);
 				double a = double( rand())/double(RAND_MAX);
 				srand(i+10);
@@ -149,50 +150,98 @@ int main(int argc, char **argv){
 					}
 //			}
 //	}
-		for(int proc=1;proc<nprc;proc++)
-		{
-			int start = 1*count;
-			int stop = start + count;
-			
-			for(int i=start;i<stop;i++)
+		starttime = MPI_Wtime();
+
+			sort(vect.begin(),vect.end()); // sort according to x axis.  
+			int l= vect.size()/2;
+			MPI_Send(&l,1,MPI_INT,1,1,MPI_COMM_WORLD);
+	
+			for(int i=l+1;i<n;i++)
 				{
 			tab[0] = vect[i][0];
 			tab[1] = vect[i][1];
 		MPI_Send(&tab,2,MPI_DOUBLE,1,1,MPI_COMM_WORLD); // the second proc is the tag	
 				}
-		}
+
 		std::vector<std::vector<double>> vet{};
 		
-		for(int i=0;i<count;i++)
+		for(int i=0;i<l;i++)
 			vet.push_back(vect[i]);
 		bool myaxis=false;		
 		root = kd_tree(vet,myaxis, &compt);
 		cout<< " Number of leaves  " << compt<<endl;
-				}
-
-	if(rank !=0){
-
-		for(int i= start; i<stop; i++){
-			MPI_Recv(&tab,2,MPI_DOUBLE,0,rank,MPI_COMM_WORLD,&stats[rank]);
-			vect.push_back({tab[0],tab[1]});
-			}
+			endtime = MPI_Wtime();
+		cout<< rank<<","<<m<<","<<endtime-starttime<<endl;
 		
-		bool myaxis=false;
-		root = kd_tree(vect,myaxis, &compt);
-		std::cout<< " rank " << rank << " v size " << vect.size() << endl;
-			cout<< " Number of leaves  " << compt<<endl;
 		}
 
+	if(rank >=1){
+		starttime = MPI_Wtime();		
+		int a= rank;
+		int  l;
+		
+		MPI_Recv(&l,1,MPI_INT,rank-1,rank,MPI_COMM_WORLD,&stats[rank]);// receive from previous rank
+		
+		for(int i=1; i<l; i++){
+			MPI_Recv(&tab,2,MPI_DOUBLE,rank-1,rank,MPI_COMM_WORLD,&stats[rank]);
+			vect.push_back({tab[0],tab[1]});
+			}
+			
+		if(a%2!=0){
+			 myaxis= true;
+			
+//			#pragma omp for ordered					
+			for(int i=0; i<vect.size(); i++){
+//					#pragma omp odered 
+					swap(vect[i][0],vect[i][1]);}				
+			// 2. sort the swap vector 
 
+			sort(vect.begin(),vect.end());
+			// 3. swap again the vector
+	//			#pragma omp for ordered 
+				 
+			for(int i=0; i<vect.size(); i++){
+//				#pragma omp ordered 
+				swap(vect[i][0],vect[i][1]);}
+			}
+		if(a%2==0) {
+			 myaxis = false;
+			sort(vect.begin(),vect.end());
+			}
 
-//	double start = omp_get_wtime(); 
-//	root = kd_tree(vect,myaxis, &compt);
-//	double endtime = omp_get_wtime();
-}
+		if(nprc-1>a){ // in case, we have more than 1 processes
+			int l= vect.size()/2;
+			MPI_Send(&l,1,MPI_INT,rank+1,rank+1,MPI_COMM_WORLD);
+
+			for(int i=l+1;i<n;i++)
+			{
+				tab[0] = vect[i][0];
+				tab[1] = vect[i][1];
+				MPI_Send(&tab,2,MPI_DOUBLE,rank+1,rank+1,MPI_COMM_WORLD); // the second proc is the tag	
+			}
+			
+			std::vector<std::vector<double>> vet{};
+			
+			for(int i=0;i<l;i++)
+				vet.push_back(vect[i]);
+			root = kd_tree(vet,myaxis, &compt);
+			endtime = MPI_Wtime();
+			cout<< rank<<","<<m<<","<<endtime-starttime<<endl;
+
+			}
+		else{	
+		root = kd_tree(vect,myaxis, &compt);
+
+		//std::cout<< " rank " << rank << " v size " << vect.size() << endl;
+			cout<< " Number of leaves  " << compt<<endl;
+			endtime = MPI_Wtime();
+		cout<< rank<< ","<<m<<","<<endtime-starttime<<endl;
+		}
+		}
+	}
+	
 	
 	MPI::Finalize();
-
-//	cout<< m << ";" << endtime - start<<std::endl;
 	
 	cout<< " Done .."<<endl;	
 	return 0;
