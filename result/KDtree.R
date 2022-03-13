@@ -39,11 +39,12 @@ re$Thread_number<- as.factor(as.integer(re$Thread_number))
 p<-ggplot(data=re)+
   geom_line(mapping = aes(n,walltime, color=Thread_number))+
   geom_point(mapping = aes(n,walltime, color=Thread_number))+
-  labs(x="Number of thread", y= "Runtime (min)", title = "Strong scalability")+
+  labs(x="n", y= "Runtime (min)", title = "Strong scalability")+
   theme(plot.title = element_text(hjust = 0.3))
 p
 
 ggsave(p, filename = "weakscaling.png")
+
 
 
 
@@ -93,7 +94,7 @@ total$n <-as.factor(total$n)
 p<-ggplot(data=total)+
   geom_line(mapping = aes(Thread_number,speed, color=n))+
   geom_point(mapping = aes(Thread_number,speed, color=n))+
-  labs(x="Number of thread", y= "speed-up", title = "Speedup using openmp")+
+  labs(x="Number of thread", y= "Speedup", title = "Speedup using openmp")+
   theme(plot.title = element_text(hjust = 0.3))
 p
 ggsave(p,filename = "speedupopenmp.png")
@@ -157,4 +158,13 @@ p<-ggplot(data=weak)+
 
 p 
 ggsave(p,filename = "weak speedup.png")
+
+p<-ggplot(data=weak)+
+  geom_line(mapping = aes(Thread_number,Efficiency))+
+  geom_point(mapping = aes(Thread_number,Efficiency,color=n))+
+  labs(x="Number of thread", y= "Efficiency", title = "Weak Efficiency")+
+  theme(plot.title = element_text(hjust = 0.3))
+
+p 
+ggsave(p,filename = "weakEfficiency1.png")
 
