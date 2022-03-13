@@ -39,7 +39,7 @@ re$Thread_number<- as.factor(as.integer(re$Thread_number))
 p<-ggplot(data=re)+
   geom_line(mapping = aes(n,walltime, color=Thread_number))+
   geom_point(mapping = aes(n,walltime, color=Thread_number))+
-  labs(x="Number of thread", y= "Speedup", title = "Strong scalability")+
+  labs(x="Number of thread", y= "Runtime (min)", title = "Strong scalability")+
   theme(plot.title = element_text(hjust = 0.3))
 p
 
