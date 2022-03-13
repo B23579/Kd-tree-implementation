@@ -1,5 +1,6 @@
 library(tidyverse)
 library(tibble)
+library(data.table)
 
 
 result<-read.csv("reslopenmp.csv.txt", header = FALSE,sep=";") 
@@ -8,7 +9,7 @@ result$Thread_number<- as.integer(result$Thread_number)
 result$n <- as.integer(result$n)
 result$walltime <- as.numeric(result$walltime) 
 
-
+view(result)
 # strong Scaling :
 #1- Fixe the problem size
 #2- measure how solution time decrease with more processor 
@@ -38,7 +39,7 @@ re$Thread_number<- as.factor(as.integer(re$Thread_number))
 p<-ggplot(data=re)+
   geom_line(mapping = aes(n,walltime, color=Thread_number))+
   geom_point(mapping = aes(n,walltime, color=Thread_number))+
-  labs(x="Number of thread", y= "speed-up", title = "Weak scaling")+
+  labs(x="Number of thread", y= "Speedup", title = "Strong scalability")+
   theme(plot.title = element_text(hjust = 0.3))
 p
 
@@ -51,7 +52,7 @@ ggsave(p, filename = "weakscaling.png")
 # we will discard the problem size 9
 
 result<-filter(result, n!=9)
-
+view(result)
 resu<-filter(result, result$Thread_number==1)
 resu1<-filter(result, result$Thread_number==5)
 resu2<-filter(result, result$Thread_number==10)
@@ -85,7 +86,7 @@ rsul2<-mutate(rsul2,Efficiency=rsul2$speed/rsul2$Thread_number)
 
 total <- rbind(resu,resu1,resu2,resu3,resu4, rsul,rsul1,rsul2)
 
-
+view(total)
 
 total$Thread_number <-as.numeric(total$Thread_number)
 total$n <-as.factor(total$n)
@@ -97,11 +98,13 @@ p<-ggplot(data=total)+
 p
 ggsave(p,filename = "speedupopenmp.png")
 
-total$n<-as.integer(total$n)
+
+total1<-total
+##### 
+total$n<-as.numeric(as.character(total1$n))
 total<-filter(total,Thread_number>1)
 total$n <-as.factor(total$n)
 
-view(total)
 
 p<-ggplot(data=total)+
   geom_line(mapping = aes(Thread_number,Efficiency, color=n))+
@@ -121,3 +124,37 @@ p<-ggplot(data=l)+
 
 p 
 ggsave(p,filename = "strongscalabilityfor_4.png")
+fwrite(total, "total.csv")
+
+
+total$n<-as.integer(as.character(total$n))
+weak<-filter(total,total$Thread_number==5,n==4)%>%
+  rbind(filter(total,total$Thread_number==10,total$n==5))%>%
+  rbind(filter(total,total$Thread_number==20,total$n==6))%>%
+  rbind(filter(total,total$Thread_number==34,total$n==7))%>%
+  rbind(filter(total,total$Thread_number==48,total$n==8))
+  
+view(weak)
+
+# weak scalability 
+weak1<- weak
+weak$n <- as.factor(weak$n)
+
+p<-ggplot(data=weak)+
+  geom_line(mapping = aes(Thread_number,walltime))+
+  geom_point(mapping = aes(Thread_number,walltime,color=n))+
+  labs(x="Number of thread", y= "Runtime(s)", title = "Weak scalbility")+
+  theme(plot.title = element_text(hjust = 0.3))
+
+p 
+ggsave(p,filename = "weakscalability.png")
+
+p<-ggplot(data=weak)+
+  geom_line(mapping = aes(Thread_number,speed))+
+  geom_point(mapping = aes(Thread_number,speed,color=n))+
+  labs(x="Number of thread", y= "Speedup", title = "Weak Speedup")+
+  theme(plot.title = element_text(hjust = 0.3))
+
+p 
+ggsave(p,filename = "weak speedup.png")
+
