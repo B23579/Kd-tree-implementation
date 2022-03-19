@@ -16,6 +16,6 @@ and the following for hybrid program :
 ```
 qsub hybrid.pbs
 ```
-To run the serial code, set the number of thread to 1 using  in ` kdtree.cpp` in the following syntax `omp_set_num_threads(1);`. 
+To run the serial code, set the number of thread to 1 inside ` kdtree.cpp` in the following syntax `omp_set_num_threads(1);`. 
 By changing that value, we increase and reduce the number of thread. 
 
