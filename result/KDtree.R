@@ -259,7 +259,7 @@ total$n <-as.factor(total$n)
 p<-ggplot(data=total)+
   geom_line(mapping = aes(Thread_number,speed, color=n))+
   geom_point(mapping = aes(Thread_number,speed, color=n))+
-  labs(x="Number of thread", y= "Speedup", title = "Speedup using openmp")+
+  labs(x="Number of thread", y= "Speedup", title = "Speedup using Hybrid program")+
   theme(plot.title = element_text(hjust = 0.3))
 p
 ggsave(p,filename = "speedupopenmpHyB.png")
@@ -270,10 +270,19 @@ totale <-filter(total,total$n!=5)
 p<-ggplot(data=totale)+
   geom_line(mapping = aes(Thread_number,speed, color=n))+
   geom_point(mapping = aes(Thread_number,speed, color=n))+
-  labs(x="Number of thread", y= "Speedup", title = "Speedup using openmp")+
+  labs(x="Number of thread", y= "Speedup", title = "Speedup using Hyprid program")+
   theme(plot.title = element_text(hjust = 0.3))
 p
 ggsave(p,filename = "speedupopenmpHyrB.png")
+
+totale <-filter(total,total$n!=6 , total$n!=5)
+p<-ggplot(data=totale)+
+  geom_line(mapping = aes(Thread_number,speed, color=n))+
+  geom_point(mapping = aes(Thread_number,speed, color=n))+
+  labs(x="Number of thread", y= "Speedup", title = "Speedup using Hybrid program")+
+  theme(plot.title = element_text(hjust = 0.3))
+p
+ggsave(p,filename = "speedupopenmpHylrB.png")
 
 
 total1<-total
@@ -286,7 +295,7 @@ total$n <-as.factor(total$n)
 p<-ggplot(data=total)+
   geom_line(mapping = aes(Thread_number,Efficiency, color=n))+
   geom_point(mapping = aes(Thread_number,Efficiency, color=n))+
-  labs(x="Number of thread", y= "Efficiency", title = "Efficiency using openmp")+
+  labs(x="Number of thread", y= "Efficiency", title = "Efficiency using Hybrid program")+
   theme(plot.title = element_text(hjust = 0.3))
 
 p
