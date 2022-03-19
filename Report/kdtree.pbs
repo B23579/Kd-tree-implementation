@@ -1,0 +1,15 @@
+#!/bin/bash
+#PBS -N ts
+#PBS -q dssc_gpu
+#PBS -l mem=100mb
+#PBS -l nodes=1:ppn=24
+
+#PBS -l walltime=00:360:00
+
+module load gnu
+
+cd $PBS_O_WORKDIR
+
+./kd >> result1s.csv
+
+
