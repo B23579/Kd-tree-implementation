@@ -1,0 +1,14 @@
+#!/bin/bash
+#PBS -N ts
+#PBS -q dssc_gpu
+#PBS -l mem=100mb
+#PBS -l nodes=1:ppn=24
+
+#PBS -l walltime=00:360:00
+
+module load openmpi-4.1.1+gnu-9.3.0
+
+cd $PBS_O_WORKDIR
+
+mpirun -np 4 ./kdH >> result1s.csv
+
